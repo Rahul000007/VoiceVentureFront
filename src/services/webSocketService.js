@@ -2,7 +2,7 @@ import SockJS from 'sockjs-client';
 import Stomp from 'stompjs';
 import store from '../store/rootStore';
 
-const WS_URL = 'http://192.168.108.98:8080/ws';
+const WS_URL = process.env.VUE_APP_WS_URL
 
 class WebSocketService {
 
@@ -19,7 +19,7 @@ class WebSocketService {
         this.socket = new SockJS(WS_URL);
         this.stompClient = Stomp.over(this.socket);
         const token = localStorage.getItem('token')
-        this.stompClient.connect({ Authorization: `Bearer ${token}`}, () => {
+        this.stompClient.connect({Authorization: `Bearer ${token}`}, () => {
 
             store.commit('audio/setConnectionStatus', true);
 
@@ -33,17 +33,22 @@ class WebSocketService {
             this.stompClient.subscribe('/user/queue/call-request', (message) => {
                 const data = JSON.parse(message.body);
                 const callerName = data.payload;
-                const callerId=data.senderId;
-                store.dispatch('audio/receiveCallRequest', { callerName,callerId});
-            });
-
-            this.stompClient.subscribe('/user/queue/call-reject', () => {
-                store.commit('audio/setInCall',false)
+                const callerId = data.senderId;
+                store.dispatch('audio/receiveCallRequest', {callerName, callerId});
             });
 
             this.stompClient.subscribe('/user/queue/call-accept', () => {
-                store.commit('audio/setInCall',true)
+                store.commit('audio/setInCall', true)
                 store.dispatch('audio/startCall');
+            });
+
+            this.stompClient.subscribe('/user/queue/call-reject', () => {
+                store.commit('audio/setInCall', false)
+            });
+
+            this.stompClient.subscribe('/user/queue/call-end', (message) => {
+                const data = JSON.parse(message.body);
+                console.log("CALL END => ", data.payload);
             });
 
             this.stompClient.subscribe('/user/queue/offer', (message) => {
@@ -64,22 +69,35 @@ class WebSocketService {
 
             this.stompClient.subscribe('/user/queue/ice-candidate', (message) => {
                 const data = JSON.parse(message.body);
-
                 if (this.eventListeners['ICE_CANDIDATE']) {
                     this.eventListeners['ICE_CANDIDATE'](data.payload);
                 }
             });
 
-            this.stompClient.subscribe('/user/queue/call-end', (message) => {
+            this.stompClient.subscribe("/user/queue/matching", (message) => {
                 const data = JSON.parse(message.body);
-                console.log("CALL END => ", data.payload);
-            });
 
-            this.stompClient.subscribe("/user/queue/matching",(message) =>{
-                const data=JSON.parse(message.body);
-                console.log("Matching Data => "+data)
-                store.commit('matching/setCurrentMatchedUser',data);
+                store.commit('matching/setMatching', true);
+                store.commit('matching/setMatchedUserId', data.matchedUserId);
+                store.commit('matching/setMatchedUserName',data.username);
+                store.commit('matching/setMatchedEmail', data.email);
+                store.commit('matching/setMatchedFullName', data.fullName);
+                store.commit('matching/setMatchedProficiencyLevel', data.proficiencyLevel);
+                store.commit('matching/setMatchedRating', data.rating);
+                store.commit('matching/setMatchedAchievement', data.achievement);
+
+
+                store.commit('audio/setRemoteUserId', data.matchedUserId)
+                store.commit('audio/setCallerName',data.fullName)
+                store.commit('audio/setConnectionStatus', true);
             })
+
+            this.stompClient.subscribe('/user/queue/match-accepted', (message) => {
+                store.commit('matching/setMatchedUserMatchAcceptanceStatus','ACCEPTED')
+                const data = JSON.parse(message.body);
+                store.commit('audio/setIsCaller', data);
+                store.dispatch('audio/startCall');
+            });
 
         }, (error) => {
             console.log('STOMP error: ->', error);
@@ -108,6 +126,15 @@ class WebSocketService {
         }
     }
 
+    sendMessageStatus(userId, matchedUserId, acceptanceStatus) {
+        const matchAcceptanceEvent = {userId: userId, matchedUserId: matchedUserId, acceptanceStatus: acceptanceStatus};
+        const message = JSON.stringify(matchAcceptanceEvent);
+        if (this.stompClient && this.stompClient.connected) {
+            this.stompClient.send("/app/matchAcceptance", {}, message)
+        } else {
+            console.error('STOMP connection is not open');
+        }
+    }
 
     reconnect() {
         if (this.reconnectAttempts < this.maxReconnectAttempts) {

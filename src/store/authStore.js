@@ -34,7 +34,7 @@ const authStore = {
         },
     },
     actions: {
-        async login({ commit }, credentials) {
+        async login({ commit ,dispatch}, credentials) {
             const response = await authService.login(credentials);
             const { token, refreshToken, username,userId, roles } = response.data;
             commit('audio/setLocalUserId',userId)
@@ -42,6 +42,7 @@ const authStore = {
             commit("setUsername",username)
             commit('setToken', { token, refreshToken });
             commit('setUser', { username, roles });
+            dispatch('audio/connectSocket');
             return response;
         },
         async register(_, userData) {

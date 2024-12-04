@@ -32,6 +32,9 @@ const audioStore = {
         setIsCaller(state, status) {
             state.isCaller = status;
         },
+        setCallerName(state, status) {
+            state.callerName = status;
+        },
         setConnectionStatus(state, status) {
             state.isConnected = status;
         },
@@ -51,6 +54,7 @@ const audioStore = {
         },
     },
     actions: {
+
         async connectSocket() {
             webSocketService.init();
         },
@@ -65,7 +69,7 @@ const audioStore = {
         async callRequest({commit, state}) {
             commit('setIsCaller', true)
             commit('setInCall', true);
-            commit('setRemoteUserId', 2)
+            commit('setRemoteUserId', state.remoteUserId);
             webSocketService.sendMessage('CALL_REQUEST', authStore.state.userName, state.localUserId, state.remoteUserId);
         },
 
@@ -115,7 +119,6 @@ const audioStore = {
             dispatch('handleWebSocketMessages');
         },
 
-
         async handleWebSocketMessages({state}) {
 
             webSocketService.addEventListener('OFFER', async (message) => {
@@ -161,7 +164,6 @@ const audioStore = {
                 }
             });
         },
-
 
         async sendOffer({state}) {
             const offer = await state.peerConnection.createOffer();

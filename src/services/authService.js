@@ -15,7 +15,6 @@ const authService = {
         return api.post('/auth/reset-password', { email });
     },
     startMatching(userId){
-        console.log("UserId "+userId)
         return api.post('/matching/start',userId)
     }
 };

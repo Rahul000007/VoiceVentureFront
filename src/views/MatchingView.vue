@@ -9,6 +9,7 @@
       {{ currentMatchedUser }}
     </div>
     <div>
+
       <button @click="acceptMatch">Accept</button>
       <button @click="declineMatch">Decline</button>
     </div>
@@ -31,7 +32,7 @@ export default {
   watch: {},
 
   methods: {
-    ...mapActions('matching', ['startMatching']),
+    ...mapActions('matching', ['startMatching',"acceptMatch","declineMatch","listenForMatchAcceptance"]),
   },
 };
 
