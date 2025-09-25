@@ -3,20 +3,16 @@ import api from './apiService';
 
 const authService = {
     login(credentials) {
-        return api.post('/auth/login', credentials);
+        return api.post('/login', credentials);
     },
     register(userData) {
-        return api.post('/auth/register', userData);
+        return api.post('/register', userData);
     },
-    refreshToken(refreshToken) {
-        return api.post('/auth/refresh-token', { refreshToken });
+    startMatching(){
+        return api.get('/matching/start')
     },
-    resetPassword(email) {
-        return api.post('/auth/reset-password', { email });
-    },
-    startMatching(userId){
-        return api.post('/matching/start',userId)
-    }
+
+
 };
 
 export default authService;

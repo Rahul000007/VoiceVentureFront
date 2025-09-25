@@ -3,45 +3,33 @@ import authService from '../services/authService';
 
 const authStore = {
     state: {
-        user: null,
-        userId:null,
-        userName:null,
         token: localStorage.getItem('token') || null,
         refreshToken: localStorage.getItem('refreshToken') || null,
+        expiry: localStorage.getItem('expiry') || null,
+        userName:null,
+        profilePic:null,
     },
     mutations: {
-        setUser(state, user) {
-            state.user = user;
-        },
-        setUserId(state, userId) {
-            state.userId=userId;
-        },
-        setUsername(state, userName) {
-            state.userName=userName;
-        },
-        setToken(state, { token, refreshToken }) {
-            state.token = token;
+        setToken(state, { accessToken, refreshToken, expiry }) {
+            state.token = accessToken;
             state.refreshToken = refreshToken;
-            localStorage.setItem('token', token);
+            state.expiry = expiry;
+            localStorage.setItem('token', accessToken);
             localStorage.setItem('refreshToken', refreshToken);
+            localStorage.setItem('expiry',expiry);
         },
-        logout(state) {
-            state.user = null;
-            state.token = null;
-            state.refreshToken = null;
-            localStorage.removeItem('token');
-            localStorage.removeItem('refreshToken');
-        },
+        setUserDetails(state, {userName,profilePic}){
+            state.userName = userName,
+            state.profilePic = profilePic
+        }
     },
     actions: {
         async login({ commit ,dispatch}, credentials) {
             const response = await authService.login(credentials);
-            const { token, refreshToken, username,userId, roles } = response.data;
+            const { accessToken, refreshToken, expiry, userId, name, profilePic } = response.data.data;
+            commit('setToken', { accessToken, refreshToken,expiry });
+            commit('setUserDetails',{ name, profilePic})
             commit('audio/setLocalUserId',userId)
-            commit('setUserId',userId)
-            commit("setUsername",username)
-            commit('setToken', { token, refreshToken });
-            commit('setUser', { username, roles });
             dispatch('audio/connectSocket');
             return response;
         },
@@ -58,20 +46,9 @@ const authStore = {
             return response;
         },
 
-        logout({ commit }) {
-            commit('logout');
-        },
-
-        async resetPassword(_, email) {
-            return authService.resetPassword(email);
-        },
-
     },
     getters: {
         isAuthenticated: (state) => !!state.token,
-        user: (state) => state.user,
-        username:(state)=>state.userName,
-        userId:(state)=>state.userId
     },
 
 };

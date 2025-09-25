@@ -14,7 +14,6 @@ class WebSocketService {
         this.maxReconnectAttempts = 5;
         this.reconnectDelay = 2000;
     }
-
     init() {
         this.socket = new SockJS(WS_URL);
         this.stompClient = Stomp.over(this.socket);
@@ -79,20 +78,19 @@ class WebSocketService {
 
                 store.commit('matching/setMatching', true);
                 store.commit('matching/setMatchedUserId', data.matchedUserId);
-                store.commit('matching/setMatchedUserName',data.username);
-                store.commit('matching/setMatchedEmail', data.email);
-                store.commit('matching/setMatchedFullName', data.fullName);
+                store.commit('matching/setMatchedUserName',data.name);
                 store.commit('matching/setMatchedProficiencyLevel', data.proficiencyLevel);
                 store.commit('matching/setMatchedRating', data.rating);
                 store.commit('matching/setMatchedAchievement', data.achievement);
-
+                console.log("Started matching with : "+ data.matchedUserId)
 
                 store.commit('audio/setRemoteUserId', data.matchedUserId)
-                store.commit('audio/setCallerName',data.fullName)
+                store.commit('audio/setCallerName',data.name)
                 store.commit('audio/setConnectionStatus', true);
             })
 
             this.stompClient.subscribe('/user/queue/match-accepted', (message) => {
+                console.log("hit hi accpted")
                 store.commit('matching/setMatchedUserMatchAcceptanceStatus','ACCEPTED')
                 const data = JSON.parse(message.body);
                 store.commit('audio/setIsCaller', data);

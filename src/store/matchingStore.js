@@ -1,8 +1,8 @@
-import authStore from "@/store/authStore";
 import authService from '../services/authService';
 import websocket from "sockjs-client/lib/transport/iframe";
 import store from "@/store/rootStore";
 import webSocketService from "@/services/webSocketService";
+import audioStore from "@/store/audioStore";
 
 const matchingStore = {
 
@@ -11,8 +11,6 @@ const matchingStore = {
         matching: false,
         matchedUserId: null,
         matchedUserName:null,
-        matchedEmail:null,
-        matchedFullName:null,
         matchedProficiencyLevel:null,
         matchedRating:null,
         matchedAchievement:null,
@@ -28,12 +26,6 @@ const matchingStore = {
         },
         setMatchedUserName(state, status) {
             state.matchedUserName=status;
-        },
-        setMatchedEmail(state, status) {
-            state.matchedEmail = status;
-        },
-        setMatchedFullName(state, status) {
-            state.matchedFullName = status;
         },
         setMatchedProficiencyLevel(state, status) {
             state.matchedProficiencyLevel = status;
@@ -68,22 +60,22 @@ const matchingStore = {
         async startMatching({commit}) {
             commit('setMatching', true);
             store.commit('audio/setInCall', true)
-            store.commit('audio/setLocalUserId', authStore.state.userId);
-            await authService.startMatching(authStore.state.userId);
+            await authService.startMatching();
         },
 
         acceptMatch({commit, state}) {
-            webSocketService.sendMessageStatus(authStore.state.userId, state.matchedUserId, 'ACCEPTED');
+            webSocketService.sendMessageStatus(audioStore.state.localUserId, state.matchedUserId, 'ACCEPTED');
             commit('setMatchAcceptanceStatus', 'ACCEPTED');
         },
 
         declineMatch({commit, state}) {
-            webSocketService.sendMessageStatus(authStore.state.userId, state.matchedUserId, 'DECLINED');
+            webSocketService.sendMessageStatus(audioStore.state.localUserId, state.matchedUserId, 'DECLINED');
             commit('resetMatching');
         },
 
         listenForMatchAcceptance({commit}) {
             websocket.subscribe('/topic/matches', (message) => {
+                console.log("got hit")
                 const event = JSON.parse(message.body);
                 if (event.acceptanceStatus === 'ACCEPTED') {
                     commit('setMatchAcceptanceStatus', 'ACCEPTED');

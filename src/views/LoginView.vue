@@ -30,7 +30,7 @@ export default {
     ...mapActions(["login"]),
     async loginUser() {
       try {
-        await this.login({usernameOrEmail: this.email, password: this.password});
+        await this.login({email: this.email, password: this.password});
         this.$router.push("/call");
       } catch (error) {
         alert(error)

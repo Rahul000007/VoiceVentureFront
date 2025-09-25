@@ -4,26 +4,18 @@
     <h2>Register</h2>
     <form @submit.prevent="registerUser">
       <div class="form-group">
-        <label>Full Name</label>
-        <input v-model="fullName" type="text" class="form-control" required />
-      </div>
-      <div class="form-group">
-        <label>Username</label>
-        <input v-model="username" type="text" class="form-control" required />
+        <label>Name</label>
+        <input v-model="name" type="text" class="form-control" required />
       </div>
       <div class="form-group">
         <label>Email</label>
-        <input v-model="email" type="email" class="form-control" required />
+        <input v-model="email" type="email" class="form-control" />
       </div>
       <div class="form-group">
         <label>Password</label>
         <input v-model="password" type="password" class="form-control" required />
       </div>
-      <div class="form-group">
-        <label>Phone Number</label>
-        <input v-model="phoneNumber" type="text" class="form-control" required />
-      </div>
-      <button type="submit" class="btn btn-primary">Register</button>
+      <button type="submit" class="mt-3 btn btn-primary">Register</button>
     </form>
   </div>
 </template>
@@ -33,11 +25,9 @@ import { mapActions } from "vuex";
 export default {
   data() {
     return {
-      fullName: "",
-      username: "",
+      name: "",
       email: "",
       password: "",
-      phoneNumber: "",
     };
   },
 
@@ -45,17 +35,16 @@ export default {
     ...mapActions(["register"]),
     async registerUser() {
       try {
-        await this.register({
-          fullName: this.fullName,
-          username: this.username,
+      const response =  await this.register({
+          name: this.name,
           email: this.email,
           password: this.password,
-          phoneNumber: this.phoneNumber
         });
-        this.$toast.success('Registration successful! Please log in.');
-        this.$router.push("/login"); // Redirect to login page after successful registration
+        console.log(response.data?.message);
+        this.$toast.success(response.data.message);
+        this.$router.push("/login");
       } catch (error) {
-        this.$toast.error(error.response?.data?.message || "Registration failed!");
+        this.$toast.error(error.response?.data?.message);
       }
     },
   },
