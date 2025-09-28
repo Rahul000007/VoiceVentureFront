@@ -82,7 +82,6 @@ class WebSocketService {
                 store.commit('matching/setMatchedProficiencyLevel', data.proficiencyLevel);
                 store.commit('matching/setMatchedRating', data.rating);
                 store.commit('matching/setMatchedAchievement', data.achievement);
-                console.log("Started matching with : "+ data.matchedUserId)
 
                 store.commit('audio/setRemoteUserId', data.matchedUserId)
                 store.commit('audio/setCallerName',data.name)
@@ -90,7 +89,6 @@ class WebSocketService {
             })
 
             this.stompClient.subscribe('/user/queue/match-accepted', (message) => {
-                console.log("hit hi accpted")
                 store.commit('matching/setMatchedUserMatchAcceptanceStatus','ACCEPTED')
                 const data = JSON.parse(message.body);
                 store.commit('audio/setIsCaller', data);

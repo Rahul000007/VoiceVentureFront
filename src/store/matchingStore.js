@@ -10,7 +10,7 @@ const matchingStore = {
     state: {
         matching: false,
         matchedUserId: null,
-        matchedUserName:null,
+        matchedUserName: null,
         matchedProficiencyLevel:null,
         matchedRating:null,
         matchedAchievement:null,
@@ -45,9 +45,6 @@ const matchingStore = {
         resetMatching(state) {
             state.matching = false;
             state.matchedUserId = null;
-            state.matchedUserName=null;
-            state.matchedEmail = null;
-            state.matchedFullName = null;
             state.matchedProficiencyLevel=null;
             state.matchedRating=null;
             state.matchedAchievement=null;
@@ -75,7 +72,6 @@ const matchingStore = {
 
         listenForMatchAcceptance({commit}) {
             websocket.subscribe('/topic/matches', (message) => {
-                console.log("got hit")
                 const event = JSON.parse(message.body);
                 if (event.acceptanceStatus === 'ACCEPTED') {
                     commit('setMatchAcceptanceStatus', 'ACCEPTED');
@@ -96,8 +92,6 @@ const matchingStore = {
         matching: (state) => state.matching,
         matchedUserId: (state) => state.matchedUserId,
         matchedUserName: (state) => state.matchedUserName,
-        matchedEmail: (state) => state.matchedEmail,
-        matchedFullName: (state) => state.matchedFullName,
         matchedProficiencyLevel: (state) => state.matchedProficiencyLevel,
         matchedRating: (state) => state.matchedRating,
         matchedAchievement: (state) => state.matchedAchievement,

@@ -6,10 +6,11 @@
 <!--  <div v-else>-->
     <!--    <MatchedUserCard :user="currentMatchedUser" />-->
     <div class="alert alert-info">
-      {{ currentMatchedUser }}
+      {{ matchedUserName }}
     </div>
     <div>
 
+      <button @click="connectSocket">Accept</button>
       <button @click="acceptMatch">Accept</button>
       <button @click="declineMatch">Decline</button>
     </div>
@@ -27,12 +28,13 @@ import {mapActions, mapGetters} from 'vuex';
 export default {
   name: 'MatchingView',
   computed: {
-    ...mapGetters('matching', ['matching', 'matchAcceptanceStatus', 'currentMatchedUser'])
+    ...mapGetters('matching', ['matching', 'matchAcceptanceStatus', 'matchedUserName'])
   },
   watch: {},
 
   methods: {
     ...mapActions('matching', ['startMatching',"acceptMatch","declineMatch","listenForMatchAcceptance"]),
+    ...mapActions('audio',['connectSocket']),
   },
 };
 

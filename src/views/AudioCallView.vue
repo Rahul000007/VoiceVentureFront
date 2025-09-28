@@ -34,12 +34,12 @@
                    style="object-fit: contain;"/>
             </div>
 
-            <div  class=" text-center  w-50 ">
+            <div  class=" text-center  w-50 " >
               <div class="rounded-circle border border-4 border-secondary ">
                 <img :src="require('/src/assets/img/user2.png')" class="img-fluid rounded-circle" alt="User 2"
                      style="object-fit: contain;"/>
-              </div>
-              <p>{{ matchedFullName }}</p>
+              </div >
+              <p v-if="matchedUserName">{{ matchedUserName }}</p>
             </div>
 
           </div>
@@ -48,8 +48,8 @@
             <div class="loader"></div>
           </div>
 
-          <audio ref="localAudio" autoplay controls  class="d-none" ></audio>
-          <audio ref="remoteAudio" autoplay controls class="d-none"></audio>
+          <audio ref="localAudio" autoplay controls  class="" ></audio>
+          <audio ref="remoteAudio" autoplay controls class=""></audio>
 
           <!-- Matching Button -->
           <div class="d-flex justify-content-center mt-4" v-if="!matching && !matchAccepted">
@@ -193,7 +193,7 @@ export default {
   name: 'AudioCallView',
   computed: {
     ...mapGetters('audio', ['inCall', 'localStream', 'remoteStream', 'isConnected', 'showIncomingCallModal', 'callerName', 'localUserId']),
-    ...mapGetters('matching', ['matching', 'matchAcceptanceStatus', 'matchedUserId', 'matchedFullName', 'matchedAchievement', 'matchedProficiencyLevel', 'matchedRating','matchedUserMatchAcceptanceStatus']),
+    ...mapGetters('matching', ['matching', 'matchAcceptanceStatus', 'matchedUserName', 'matchedAchievement', 'matchedProficiencyLevel', 'matchedRating','matchedUserMatchAcceptanceStatus']),
     matchFound() {
       return this.matching && this.matchedUserId !== null;
     },
